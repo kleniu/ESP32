@@ -1,2 +1,6 @@
 # ESP32 funlab
-## Setting up the toolchain for _Max OS_
+## 1) Setting up the toolchain for _Max OS_
+```
+echo "esp-idf/" >> .gitignore
+git clone --recursive https://github.com/espressif/esp-idf.git
+```
