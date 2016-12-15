@@ -1,4 +1,4 @@
 esp-idf/
 esp/
 TEST*/build/
-TEST*/build/sdkconfig* 
+TEST*/sdkconfig* 
