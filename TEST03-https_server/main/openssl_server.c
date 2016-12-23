@@ -43,7 +43,6 @@ const static int CONNECTED_BIT = BIT0;
 
 
 
-/*
 
 #define OPENSSL_DEMO_SERVER_ACK "HTTP/1.1 200 OK\r\n" \
                                 "Content-Type: text/html\r\n" \
@@ -54,7 +53,6 @@ const static int CONNECTED_BIT = BIT0;
                                 "OpenSSL server demo!\r\n" \
                                 "</body>\r\n" \
                                 "</html>\r\n"
-*/
 
 static void rk_openssl_demo_thread(void *p)
 {
@@ -63,6 +61,10 @@ static void rk_openssl_demo_thread(void *p)
     //char addr_str[INET_ADDRSTRLEN];
     int proceed = 1;
     struct sockaddr_in server_addr, client_addr; // structure used to setup IP and port of the server
+    char recv_buf[OPENSSL_DEMO_RECV_BUF_LEN];
+
+    const char send_data[] = OPENSSL_DEMO_SERVER_ACK;
+    const int send_bytes = sizeof(send_data);
 
     ESP_LOGI(TAG, "Creating Server socket ......");
     // STEP1: create socket
@@ -137,8 +139,18 @@ static void rk_openssl_demo_thread(void *p)
                 // getpeername( socket_client, (struct sockaddr *) &client_addr, (socklen_t*)&addr_len);
                 // ESP_LOGI(TAG, "Connected with client IP=%s PORT=%d, addr_len=%d.", addr_str, ntohs(client_addr.sin_port), addr_len);
                 ESP_LOGI(TAG, "Connected with client.");
-                
-                write(socket_client , "PONG!\r\n" , strlen("PONG!\r\n"));
+
+                memset(recv_buf, 0, OPENSSL_DEMO_RECV_BUF_LEN);
+                if ( read(socket_client, recv_buf, OPENSSL_DEMO_RECV_BUF_LEN - 1) > 0 ) 
+                {
+                    ESP_LOGI(TAG, "received :%s", recv_buf);
+                    if (strstr(recv_buf, "GET / HTTP/1.1")) 
+                    {
+                        ESP_LOGI(TAG, "sending  :%s", send_data);
+                        write(socket_client, send_data, send_bytes);
+                    }
+                }
+                //write(socket_client , "PONG!\r\n" , strlen("PONG!\r\n"));
                 
                 ESP_LOGI(TAG, "Closing connection with client");
                 close(socket_client);
